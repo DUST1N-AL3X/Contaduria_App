@@ -319,5 +319,3 @@ function renderChart(income, expenses){
     });
 
 }
-
-renderInvoices();
