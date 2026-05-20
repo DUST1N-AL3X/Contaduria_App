@@ -12,7 +12,11 @@ let invoices =
 
 let chart;
 
-form.addEventListener("submit", function(e){
+// =========================
+// GUARDAR FACTURA
+// =========================
+
+form.addEventListener("submit", function (e) {
 
     e.preventDefault();
 
@@ -29,6 +33,13 @@ form.addEventListener("submit", function(e){
         parseFloat(
             document.getElementById("amount").value
         );
+
+    if (!date || !type || !category || isNaN(amount)) {
+
+        showToast("⚠ Completa todos los campos");
+
+        return;
+    }
 
     const iva = amount * 0.16;
 
@@ -58,7 +69,11 @@ form.addEventListener("submit", function(e){
 
 });
 
-function saveInvoices(){
+// =========================
+// GUARDAR EN LOCAL STORAGE
+// =========================
+
+function saveInvoices() {
 
     localStorage.setItem(
         "invoices",
@@ -67,7 +82,11 @@ function saveInvoices(){
 
 }
 
-function renderInvoices(){
+// =========================
+// MOSTRAR FACTURAS
+// =========================
+
+function renderInvoices() {
 
     invoiceTable.innerHTML = "";
 
@@ -104,12 +123,12 @@ function renderInvoices(){
 
         invoiceTable.appendChild(row);
 
-        if(invoice.type === "ingreso"){
+        if (invoice.type === "ingreso") {
 
             totalIncome += invoice.amount;
             ivaTransferred += invoice.iva;
 
-        }else{
+        } else {
 
             totalExpenses += invoice.amount;
             ivaCreditable += invoice.iva;
@@ -161,7 +180,11 @@ function renderInvoices(){
 
 }
 
-function deleteInvoice(id){
+// =========================
+// ELIMINAR FACTURA
+// =========================
+
+function deleteInvoice(id) {
 
     invoices =
         invoices.filter(
@@ -176,7 +199,11 @@ function deleteInvoice(id){
 
 }
 
-function getFilteredInvoices(){
+// =========================
+// FILTROS
+// =========================
+
+function getFilteredInvoices() {
 
     const selectedMonth =
         monthFilter.value;
@@ -208,6 +235,10 @@ function getFilteredInvoices(){
 
 }
 
+// =========================
+// EVENTOS
+// =========================
+
 monthFilter.addEventListener(
     "change",
     renderInvoices
@@ -223,12 +254,16 @@ isrRateInput.addEventListener(
     renderInvoices
 );
 
-exportCSVBtn.addEventListener("click", function(){
+// =========================
+// EXPORTAR CSV
+// =========================
+
+exportCSVBtn.addEventListener("click", function () {
 
     const filteredInvoices =
         getFilteredInvoices();
 
-    if(filteredInvoices.length === 0){
+    if (filteredInvoices.length === 0) {
 
         showToast("⚠ No hay datos");
 
@@ -242,12 +277,12 @@ exportCSVBtn.addEventListener("click", function(){
     filteredInvoices.forEach(invoice => {
 
         csv +=
-`${invoice.date},${invoice.type},${invoice.category},${invoice.amount},${invoice.iva},${invoice.total}\n`;
+            `${invoice.date},${invoice.type},${invoice.category},${invoice.amount},${invoice.iva},${invoice.total}\n`;
 
     });
 
     const blob =
-        new Blob([csv], { type:"text/csv" });
+        new Blob([csv], { type: "text/csv" });
 
     const url =
         URL.createObjectURL(blob);
@@ -267,7 +302,11 @@ exportCSVBtn.addEventListener("click", function(){
 
 });
 
-function showToast(message){
+// =========================
+// TOAST
+// =========================
+
+function showToast(message) {
 
     toast.textContent = message;
 
@@ -281,18 +320,26 @@ function showToast(message){
 
 }
 
+// =========================
+// MODO OSCURO
+// =========================
+
 themeToggle.addEventListener("click", () => {
 
     document.body.classList.toggle("dark");
 
 });
 
-function renderChart(income, expenses){
+// =========================
+// GRAFICA
+// =========================
+
+function renderChart(income, expenses) {
 
     const ctx =
         document.getElementById("financeChart");
 
-    if(chart){
+    if (chart) {
 
         chart.destroy();
 
@@ -300,17 +347,17 @@ function renderChart(income, expenses){
 
     chart = new Chart(ctx, {
 
-        type:"bar",
+        type: "bar",
 
-        data:{
+        data: {
 
-            labels:["Ingresos", "Gastos"],
+            labels: ["Ingresos", "Gastos"],
 
-            datasets:[{
+            datasets: [{
 
-                label:"Resumen",
+                label: "Resumen",
 
-                data:[income, expenses]
+                data: [income, expenses]
 
             }]
 
@@ -319,3 +366,9 @@ function renderChart(income, expenses){
     });
 
 }
+
+// =========================
+// CARGAR DATOS AL INICIAR
+// =========================
+
+renderInvoices();
