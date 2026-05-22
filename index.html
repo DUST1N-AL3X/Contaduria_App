@@ -4,72 +4,274 @@
 <head>
 
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Control de Impuestos MX</title>
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>ContaFlow</title>
 
     <link rel="stylesheet" href="style.css">
 
+    <!-- Fuente -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+        rel="stylesheet"
+    >
+
+    <!-- Iconos -->
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    >
+
+    <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 </head>
 
 <body>
 
-    <div class="container">
+    <!-- SIDEBAR -->
 
-        <header class="header">
+    <aside class="sidebar">
 
-            <div>
-                <h1>Control de Impuestos MX</h1>
-                <p>Sistema financiero simple con IVA e ISR</p>
+        <div class="logo">
+
+            <div class="logo-icon">
+                ▣
             </div>
 
-            <button id="themeToggle">
+            <div>
+                <h2>ContaFlow</h2>
+                <p>Dashboard Fiscal</p>
+            </div>
+
+        </div>
+
+        <nav>
+
+            <a href="#">
+                <i class="fa-solid fa-chart-line"></i>
+                Dashboard
+            </a>
+
+            <a href="#">
+                <i class="fa-solid fa-file-invoice"></i>
+                Facturas
+            </a>
+
+            <a href="#">
+                <i class="fa-solid fa-chart-pie"></i>
+                Reportes
+            </a>
+
+            <a href="#">
+                <i class="fa-solid fa-gear"></i>
+                Configuración
+            </a>
+
+        </nav>
+
+    </aside>
+
+    <!-- MAIN -->
+
+    <main class="main-content">
+
+        <!-- TOPBAR -->
+
+        <header class="topbar">
+
+            <div>
+
+                <h1>
+                    Dashboard Financiero
+                </h1>
+
+                <p>
+                    Control de IVA e ISR
+                </p>
+
+            </div>
+
+            <button
+                type="button"
+                id="themeToggle"
+            >
                 🌙
             </button>
 
         </header>
 
+        <!-- KPIS -->
+
+        <section class="kpi-grid">
+
+            <div class="kpi-card income">
+
+                <div class="kpi-top">
+
+                    <i class="fa-solid fa-wallet"></i>
+
+                    <span>
+                        Ingresos
+                    </span>
+
+                </div>
+
+                <h2 id="totalIncome">
+                    $0.00
+                </h2>
+
+            </div>
+
+            <div class="kpi-card expense">
+
+                <div class="kpi-top">
+
+                    <i class="fa-solid fa-arrow-trend-down"></i>
+
+                    <span>
+                        Gastos
+                    </span>
+
+                </div>
+
+                <h2 id="totalExpenses">
+                    $0.00
+                </h2>
+
+            </div>
+
+            <div class="kpi-card iva">
+
+                <div class="kpi-top">
+
+                    <i class="fa-solid fa-receipt"></i>
+
+                    <span>
+                        IVA a Pagar
+                    </span>
+
+                </div>
+
+                <h2 id="ivaToPay">
+                    $0.00
+                </h2>
+
+            </div>
+
+            <div class="kpi-card utility">
+
+                <div class="kpi-top">
+
+                    <i class="fa-solid fa-chart-column"></i>
+
+                    <span>
+                        Ganancia Neta
+                    </span>
+
+                </div>
+
+                <h2 id="netProfit">
+                    $0.00
+                </h2>
+
+            </div>
+
+        </section>
+
+        <!-- FORM -->
+
         <section class="card">
 
-            <h2>Registrar Factura</h2>
+            <h2>
+                Registrar Factura
+            </h2>
 
             <form id="invoiceForm">
 
                 <div class="grid">
 
                     <div>
-                        <label>Fecha</label>
-                        <input type="date" id="date" required>
+
+                        <label>
+                            Fecha
+                        </label>
+
+                        <input
+                            type="date"
+                            id="date"
+                            required
+                        >
+
                     </div>
 
                     <div>
-                        <label>Tipo</label>
 
-                        <select id="type" required>
-                            <option value="ingreso">Ingreso</option>
-                            <option value="gasto">Gasto</option>
+                        <label>
+                            Tipo
+                        </label>
+
+                        <select id="type">
+
+                            <option value="ingreso">
+                                Ingreso
+                            </option>
+
+                            <option value="gasto">
+                                Gasto
+                            </option>
+
                         </select>
+
                     </div>
 
                     <div>
-                        <label>Categoría</label>
+
+                        <label>
+                            Categoría
+                        </label>
 
                         <select id="category">
 
-                            <option value="Ventas">Ventas</option>
-                            <option value="Comida">Comida</option>
-                            <option value="Transporte">Transporte</option>
-                            <option value="Internet">Internet</option>
-                            <option value="Servicios">Servicios</option>
-                            <option value="Software">Software</option>
+                            <option value="Ventas">
+                                Ventas
+                            </option>
+
+                            <option value="Comida">
+                                Comida
+                            </option>
+
+                            <option value="Transporte">
+                                Transporte
+                            </option>
+
+                            <option value="Internet">
+                                Internet
+                            </option>
+
+                            <option value="Servicios">
+                                Servicios
+                            </option>
+
+                            <option value="Software">
+                                Software
+                            </option>
 
                         </select>
+
                     </div>
 
                     <div>
-                        <label>Monto</label>
+
+                        <label>
+                            Monto
+                        </label>
 
                         <input
                             type="number"
@@ -78,6 +280,21 @@
                             step="0.01"
                             required
                         >
+
+                    </div>
+
+                    <div>
+
+                        <label>
+                            ISR %
+                        </label>
+
+                        <input
+                            type="number"
+                            id="isrRate"
+                            value="30"
+                        >
+
                     </div>
 
                 </div>
@@ -90,21 +307,27 @@
 
         </section>
 
-        <section class="card">
+        <!-- FILTROS -->
 
-            <h2>Filtros</h2>
+        <section class="card">
 
             <div class="filter-row">
 
-                <input type="month" id="monthFilter">
+                <input
+                    type="month"
+                    id="monthFilter"
+                >
 
                 <input
                     type="text"
                     id="searchInput"
-                    placeholder="Buscar factura..."
+                    placeholder="Buscar..."
                 >
 
-                <button id="exportCSV">
+                <button
+                    type="button"
+                    id="exportCSV"
+                >
                     Exportar CSV
                 </button>
 
@@ -112,81 +335,39 @@
 
         </section>
 
-        <section class="card">
+        <!-- CHARTS -->
 
-            <h2>Resumen Fiscal</h2>
+        <section class="chart-grid">
 
-            <div class="summary-grid">
+            <div class="card">
 
-                <div class="summary-box">
-                    <h3>Ingresos</h3>
-                    <p id="totalIncome">$0.00</p>
-                </div>
+                <h2>
+                    Resumen Financiero
+                </h2>
 
-                <div class="summary-box">
-                    <h3>Gastos</h3>
-                    <p id="totalExpenses">$0.00</p>
-                </div>
+                <canvas id="financeChart"></canvas>
 
-                <div class="summary-box">
-                    <h3>IVA Trasladado</h3>
-                    <p id="ivaTransferred">$0.00</p>
-                </div>
+            </div>
 
-                <div class="summary-box">
-                    <h3>IVA Acreditable</h3>
-                    <p id="ivaCreditable">$0.00</p>
-                </div>
+            <div class="card">
 
-                <div class="summary-box">
-                    <h3>IVA a Pagar</h3>
-                    <p id="ivaToPay">$0.00</p>
-                </div>
+                <h2>
+                    Distribución
+                </h2>
 
-                <div class="summary-box">
-                    <h3>Utilidad</h3>
-                    <p id="utility">$0.00</p>
-                </div>
-
-                <div class="summary-box">
-
-                    <h3>ISR %</h3>
-
-                    <input
-                        type="number"
-                        id="isrRate"
-                        value="30"
-                        min="0"
-                        max="100"
-                    >
-
-                </div>
-
-                <div class="summary-box">
-                    <h3>ISR Estimado</h3>
-                    <p id="estimatedISR">$0.00</p>
-                </div>
-
-                <div class="summary-box">
-                    <h3>Ganancia Neta</h3>
-                    <p id="netProfit">$0.00</p>
-                </div>
+                <canvas id="doughnutChart"></canvas>
 
             </div>
 
         </section>
 
-        <section class="card">
-
-            <h2>Dashboard</h2>
-
-            <canvas id="financeChart"></canvas>
-
-        </section>
+        <!-- TABLA -->
 
         <section class="card">
 
-            <h2>Facturas Registradas</h2>
+            <h2>
+                Facturas Registradas
+            </h2>
 
             <div class="table-container">
 
@@ -195,6 +376,7 @@
                     <thead>
 
                         <tr>
+
                             <th>Fecha</th>
                             <th>Tipo</th>
                             <th>Categoría</th>
@@ -202,6 +384,7 @@
                             <th>IVA</th>
                             <th>Total</th>
                             <th>Acción</th>
+
                         </tr>
 
                     </thead>
@@ -214,9 +397,13 @@
 
         </section>
 
-    </div>
+    </main>
+
+    <!-- TOAST -->
 
     <div id="toast"></div>
+
+    <!-- JS -->
 
     <script src="script.js"></script>
 
