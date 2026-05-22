@@ -1,284 +1,405 @@
-*{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
-    font-family:'Inter',sans-serif;
-}
+const form =
+    document.getElementById("invoiceForm");
 
-body{
-    background:#f5f7fb;
-    color:#111827;
-    display:flex;
-}
+const invoiceTable =
+    document.getElementById("invoiceTable");
 
-/* SIDEBAR */
+const monthFilter =
+    document.getElementById("monthFilter");
 
-.sidebar{
-    width:260px;
-    height:100vh;
-    background:white;
-    padding:30px 20px;
-    border-right:1px solid #e5e7eb;
-    position:fixed;
-}
+const searchInput =
+    document.getElementById("searchInput");
 
-.logo{
-    display:flex;
-    align-items:center;
-    gap:15px;
-    margin-bottom:40px;
-}
+const exportCSVBtn =
+    document.getElementById("exportCSV");
 
-.logo-icon{
-    width:45px;
-    height:45px;
-    border-radius:14px;
-    background:#4f46e5;
-    color:white;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    font-size:20px;
-}
+const toast =
+    document.getElementById("toast");
 
-.logo p{
-    color:#6b7280;
-    font-size:14px;
-}
+const themeToggle =
+    document.getElementById("themeToggle");
 
-nav{
-    display:flex;
-    flex-direction:column;
-    gap:10px;
-}
+const isrRateInput =
+    document.getElementById("isrRate");
 
-nav a{
-    text-decoration:none;
-    color:#374151;
-    padding:14px;
-    border-radius:12px;
-    transition:0.2s;
-    display:flex;
-    align-items:center;
-    gap:10px;
-}
+let invoices =
+    JSON.parse(localStorage.getItem("invoices")) || [];
 
-nav a:hover{
-    background:#eef2ff;
-    color:#4f46e5;
-}
-
-/* MAIN */
-
-.main-content{
-    margin-left:260px;
-    width:100%;
-    padding:30px;
-}
-
-.topbar{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    margin-bottom:25px;
-}
-
-.topbar p{
-    color:#6b7280;
-}
-
-/* CARD */
-
-.card{
-    background:white;
-    border-radius:20px;
-    padding:25px;
-    margin-bottom:25px;
-    box-shadow:0 10px 25px rgba(0,0,0,0.04);
-}
-
-/* KPI */
-
-.kpi-grid{
-    display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(230px,1fr));
-    gap:20px;
-    margin-bottom:25px;
-}
-
-.kpi-card{
-    padding:25px;
-    border-radius:20px;
-    color:white;
-}
-
-.kpi-top{
-    display:flex;
-    align-items:center;
-    gap:10px;
-    margin-bottom:15px;
-}
-
-.kpi-card h2{
-    font-size:30px;
-}
-
-.income{
-    background:#22c55e;
-}
-
-.expense{
-    background:#ef4444;
-}
-
-.iva{
-    background:#f59e0b;
-}
-
-.utility{
-    background:#4f46e5;
-}
+let financeChart;
+let doughnutChart;
 
 /* FORM */
 
-.grid{
-    display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
-    gap:15px;
+form.addEventListener("submit", function(e){
+
+    e.preventDefault();
+
+    const amount =
+        parseFloat(
+            document.getElementById("amount").value
+        );
+
+    const invoice = {
+
+        id: Date.now(),
+
+        date:
+            document.getElementById("date").value,
+
+        type:
+            document.getElementById("type").value,
+
+        category:
+            document.getElementById("category").value,
+
+        amount: amount,
+
+        iva:
+            amount * 0.16,
+
+        total:
+            amount + (amount * 0.16)
+
+    };
+
+    invoices.push(invoice);
+
+    saveInvoices();
+
+    renderInvoices();
+
+    form.reset();
+
+    showToast("✅ Factura guardada");
+
+});
+
+/* SAVE */
+
+function saveInvoices(){
+
+    localStorage.setItem(
+        "invoices",
+        JSON.stringify(invoices)
+    );
+
 }
 
-label{
-    display:block;
-    margin-bottom:8px;
-    font-weight:600;
+/* RENDER */
+
+function renderInvoices(){
+
+    invoiceTable.innerHTML = "";
+
+    const filtered =
+        getFilteredInvoices();
+
+    let income = 0;
+    let expenses = 0;
+    let ivaTransferred = 0;
+    let ivaCreditable = 0;
+
+    filtered.forEach(invoice => {
+
+        const row =
+            document.createElement("tr");
+
+        row.innerHTML = `
+            <td>${invoice.date}</td>
+            <td>${invoice.type}</td>
+            <td>${invoice.category}</td>
+            <td>$${invoice.amount.toFixed(2)}</td>
+            <td>$${invoice.iva.toFixed(2)}</td>
+            <td>$${invoice.total.toFixed(2)}</td>
+
+            <td>
+
+                <button
+                    class="delete-btn"
+                    onclick="deleteInvoice(${invoice.id})"
+                >
+                    Eliminar
+                </button>
+
+            </td>
+        `;
+
+        invoiceTable.appendChild(row);
+
+        if(invoice.type === "ingreso"){
+
+            income += invoice.amount;
+            ivaTransferred += invoice.iva;
+
+        }else{
+
+            expenses += invoice.amount;
+            ivaCreditable += invoice.iva;
+
+        }
+
+    });
+
+    const ivaToPay =
+        ivaTransferred - ivaCreditable;
+
+    const utility =
+        income - expenses;
+
+    const isrRate =
+        parseFloat(isrRateInput.value) || 0;
+
+    const estimatedISR =
+        utility * (isrRate / 100);
+
+    const netProfit =
+        utility - estimatedISR;
+
+    /* KPIS */
+
+    document.getElementById("totalIncome").textContent =
+        `$${income.toFixed(2)}`;
+
+    document.getElementById("totalExpenses").textContent =
+        `$${expenses.toFixed(2)}`;
+
+    document.getElementById("ivaToPay").textContent =
+        `$${ivaToPay.toFixed(2)}`;
+
+    document.getElementById("netProfit").textContent =
+        `$${netProfit.toFixed(2)}`;
+
+    renderCharts(
+        income,
+        expenses,
+        utility
+    );
+
 }
 
-input,
-select,
-button{
-    width:100%;
-    padding:14px;
-    border-radius:14px;
-    border:1px solid #d1d5db;
-    font-size:15px;
+/* CHARTS */
+
+function renderCharts(
+    income,
+    expenses,
+    utility
+){
+
+    const ctx1 =
+        document
+            .getElementById("financeChart")
+            .getContext("2d");
+
+    if(financeChart){
+
+        financeChart.destroy();
+
+    }
+
+    financeChart =
+        new Chart(ctx1, {
+
+            type:"bar",
+
+            data:{
+
+                labels:[
+                    "Ingresos",
+                    "Gastos",
+                    "Utilidad"
+                ],
+
+                datasets:[{
+
+                    label:"Resumen",
+
+                    data:[
+                        income,
+                        expenses,
+                        utility
+                    ],
+
+                    borderRadius:10
+
+                }]
+
+            },
+
+            options:{
+                responsive:true
+            }
+
+        });
+
+    const ctx2 =
+        document
+            .getElementById("doughnutChart")
+            .getContext("2d");
+
+    if(doughnutChart){
+
+        doughnutChart.destroy();
+
+    }
+
+    doughnutChart =
+        new Chart(ctx2, {
+
+            type:"doughnut",
+
+            data:{
+
+                labels:[
+                    "Ingresos",
+                    "Gastos"
+                ],
+
+                datasets:[{
+
+                    data:[
+                        income,
+                        expenses
+                    ]
+
+                }]
+
+            },
+
+            options:{
+                responsive:true
+            }
+
+        });
+
 }
 
-button{
-    background:#4f46e5;
-    color:white;
-    border:none;
-    cursor:pointer;
-    transition:0.2s;
-    margin-top:15px;
-}
+/* DELETE */
 
-button:hover{
-    opacity:0.9;
+function deleteInvoice(id){
+
+    invoices =
+        invoices.filter(
+            invoice => invoice.id !== id
+        );
+
+    saveInvoices();
+
+    renderInvoices();
+
+    showToast("🗑 Factura eliminada");
+
 }
 
 /* FILTER */
 
-.filter-row{
-    display:flex;
-    gap:15px;
-    flex-wrap:wrap;
+function getFilteredInvoices(){
+
+    const month =
+        monthFilter.value;
+
+    const search =
+        searchInput.value.toLowerCase();
+
+    return invoices.filter(invoice => {
+
+        const matchMonth =
+            !month ||
+            invoice.date.startsWith(month);
+
+        const matchSearch =
+
+            invoice.type
+                .toLowerCase()
+                .includes(search)
+
+            ||
+
+            invoice.category
+                .toLowerCase()
+                .includes(search);
+
+        return matchMonth && matchSearch;
+
+    });
+
 }
 
-/* CHART */
+/* EVENTS */
 
-.chart-grid{
-    display:grid;
-    grid-template-columns:2fr 1fr;
-    gap:20px;
-}
+monthFilter.addEventListener(
+    "change",
+    renderInvoices
+);
 
-/* TABLE */
+searchInput.addEventListener(
+    "input",
+    renderInvoices
+);
 
-.table-container{
-    overflow-x:auto;
-}
+isrRateInput.addEventListener(
+    "input",
+    renderInvoices
+);
 
-table{
-    width:100%;
-    border-collapse:collapse;
-    margin-top:20px;
-}
+/* EXPORT */
 
-th,
-td{
-    padding:16px;
-    text-align:left;
-    border-bottom:1px solid #e5e7eb;
-}
+exportCSVBtn.addEventListener("click", () => {
 
-th{
-    background:#f9fafb;
-}
+    let csv =
+        "Fecha,Tipo,Categoria,Monto,IVA,Total\n";
 
-.delete-btn{
-    background:#ef4444;
-    padding:10px 14px;
-    border:none;
-    border-radius:10px;
-    color:white;
-    cursor:pointer;
-}
+    invoices.forEach(invoice => {
+
+        csv +=
+`${invoice.date},${invoice.type},${invoice.category},${invoice.amount},${invoice.iva},${invoice.total}\n`;
+
+    });
+
+    const blob =
+        new Blob([csv], { type:"text/csv" });
+
+    const url =
+        URL.createObjectURL(blob);
+
+    const a =
+        document.createElement("a");
+
+    a.href = url;
+
+    a.download = "ContaFlow.csv";
+
+    a.click();
+
+    URL.revokeObjectURL(url);
+
+    showToast("📁 CSV exportado");
+
+});
 
 /* TOAST */
 
-#toast{
-    position:fixed;
-    top:20px;
-    right:20px;
-    background:#111827;
-    color:white;
-    padding:14px 20px;
-    border-radius:12px;
-    opacity:0;
-    transition:0.3s;
-}
+function showToast(message){
 
-#toast.show{
-    opacity:1;
-}
+    toast.textContent = message;
 
-/* DARK */
+    toast.classList.add("show");
 
-body.dark{
-    background:#0f172a;
-    color:white;
-}
+    setTimeout(() => {
 
-body.dark .sidebar,
-body.dark .card{
-    background:#111827;
-}
+        toast.classList.remove("show");
 
-body.dark input,
-body.dark select{
-    background:#1f2937;
-    color:white;
-    border:none;
-}
-
-body.dark th{
-    background:#1f2937;
-}
-
-/* RESPONSIVE */
-
-@media(max-width:1000px){
-
-    .sidebar{
-        display:none;
-    }
-
-    .main-content{
-        margin-left:0;
-    }
-
-    .chart-grid{
-        grid-template-columns:1fr;
-    }
+    }, 2000);
 
 }
+
+/* DARK MODE */
+
+themeToggle.addEventListener("click", () => {
+
+    document.body.classList.toggle("dark");
+
+});
+
+/* INIT */
+
+renderInvoices();
